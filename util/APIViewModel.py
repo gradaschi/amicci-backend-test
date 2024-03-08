@@ -29,9 +29,8 @@ class APIViewModel:
             items = model.objects.all()
             if not items:
                 return Response({'error': error_description}, status=status.HTTP_404_NOT_FOUND)
-
             serializer = serializer_class(items, many=True)
-            return APIViewModel._handle_serializer_response(serializer, description, error_description, status.HTTP_200_OK)
+            return Response({'description': description, 'data': serializer.data}, status=status.HTTP_200_OK)
 
         except Exception as e:
             print(e)
@@ -40,7 +39,7 @@ class APIViewModel:
     @staticmethod
     def get_one(model, serializer_class, id, description, error_description):
         item = APIViewModel._get_item_or_404(model, id, error_description)
-        serializer = serializer_class(item)
+        serializer = serializer_class(item, data=item.__dict__)
         return APIViewModel._handle_serializer_response(serializer, description, error_description, status.HTTP_200_OK)
 
     @staticmethod
