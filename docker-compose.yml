@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: 'UTC'
+    ports:
+      - '3307:3306'
+    healthcheck:
+      test:
+        - 'CMD'
+        - 'mysqladmin'
+        - 'ping'
+        - '-h'
+        - 'localhost'
+        - '-u'
+        - 'root'
+        - '-p${DB_PASSWORD}'
+        - '--silent'
+      retries: 5
+
+  web:
+    build: .
+    command: bash -c "python manage.py migrate && /usr/local/bin/gunicorn amicci_backend.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - '8000:8000'
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:8000/ || exit 1']
+      retries: 5
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: db
+      DB_PORT: ${DB_PORT:-3306}
