@@ -1,2 +1,23 @@
+# Virtual Environment
 venv/Lib
+
+# Ignore Django migrations
+**/migrations/
+
+# Ignore local development settings
+**/settings_local.py
+
+# Ignore logs
+*.log
+
+# Ignore environment variables file
 .env
+
+# Ignore VSCode settings
+.vscode/
+
+# Ignore pycache
+*.pyc
+*/*/*/__pycache__/
+*/*/__pycache__/
+*/__pycache__/
